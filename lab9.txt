@@ -1,0 +1,29 @@
+SQL> show db_recovery;
+SP2-0735: unknown SHOW option beginning "db_recover..."
+SQL> show parameter db_recovery;
+
+NAME                                 TYPE        VALUE                          
+------------------------------------ ----------- ------------------------------ 
+db_recovery_file_dest                string      C:\app\dell\product\21c\fra    
+db_recovery_file_dest_size           big integer 10G                            
+SQL> show pdbs;
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED                 
+---------- ------------------------------ ---------- ----------                 
+         2 PDB$SEED                       READ ONLY  NO                         
+         3 XEPDB1                         READ WRITE NO                         
+SQL> alter pluggable database xepdb1 open;
+alter pluggable database xepdb1 open
+*
+ERROR at line 1:
+ORA-65019: pluggable database XEPDB1 already open 
+
+
+SQL> alter pluggable database xepdb1 open;
+alter pluggable database xepdb1 open
+*
+ERROR at line 1:
+ORA-65019: pluggable database XEPDB1 already open 
+
+
+SQL> exit

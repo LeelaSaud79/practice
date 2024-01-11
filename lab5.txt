@@ -1,0 +1,289 @@
+SQL> create user c##leela identified by 123;
+
+User created.
+
+SQL> conn c##leela/123;
+ERROR:
+ORA-01045: user C##LEELA lacks CREATE SESSION privilege; logon denied 
+
+
+Warning: You are no longer connected to ORACLE.
+SQL> conn sys as sysdba
+Connected.
+SQL> grant session to c##barsha;
+grant session to c##barsha
+      *
+ERROR at line 1:
+ORA-01919: role 'SESSION' does not exist 
+
+
+SQL> grant create session to c##barsha;
+grant create session to c##barsha
+                        *
+ERROR at line 1:
+ORA-01917: user or role 'C##BARSHA' does not exist 
+
+
+SQL> grant create session to c##leela;
+
+Grant succeeded.
+
+SQL> show user;
+USER is "SYS"
+SQL> show con_name;
+
+CON_NAME                                                                        
+------------------------------                                                  
+CDB$ROOT                                                                        
+SQL> conn c##leela/123;
+Connected.
+SQL> show user;
+USER is "C##LEELA"
+SQL> create tablle test(id int);
+create tablle test(id int)
+       *
+ERROR at line 1:
+ORA-00901: invalid CREATE command 
+
+
+SQL> conn sys as sysdba;
+Connected.
+SQL> grant create table to c##leela;
+
+Grant succeeded.
+
+SQL> show user;
+USER is "SYS"
+SQL> alter user c##leela quota 100M on users;
+
+User altered.
+
+SQL> conn c##barsha/123;
+ERROR:
+ORA-01017: invalid username/password; logon denied 
+
+
+Warning: You are no longer connected to ORACLE.
+SQL> conn c##leela/123;
+Connected.
+SQL> create table emp(id int primary key, name varchar2(30), salary number(8,2), DOB date);
+
+Table created.
+
+SQL> desc emp;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(30)
+ SALARY                                             NUMBER(8,2)
+ DOB                                                DATE
+
+SQL> insert into emp values(1, 'Namu', 35000, '01-jan-2020');
+
+1 row created.
+
+SQL> desc emp;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(30)
+ SALARY                                             NUMBER(8,2)
+ DOB                                                DATE
+
+SQL> select * from emp;
+
+        ID NAME                               SALARY DOB                        
+---------- ------------------------------ ---------- ---------                  
+         1 Namu                                35000 01-JAN-20                  
+
+SQL> insert into emp values(&id, '&name', &salary, '&dateofbirth');
+Enter value for id: 2
+Enter value for name: Nima
+Enter value for salary: 80000
+Enter value for dateofbirth: 03-june-2002
+old   1: insert into emp values(&id, '&name', &salary, '&dateofbirth')
+new   1: insert into emp values(2, 'Nima', 80000, '03-june-2002')
+
+1 row created.
+
+SQL> insert into emp values(&id, '&name', &salary, '&dateofbirth');
+Enter value for id: 3
+Enter value for name: Yojuu
+Enter value for salary: 60000
+Enter value for dateofbirth: 2-june-2022
+old   1: insert into emp values(&id, '&name', &salary, '&dateofbirth')
+new   1: insert into emp values(3, 'Yojuu', 60000, '2-june-2022')
+
+1 row created.
+
+SQL> select * from emp;
+
+        ID NAME                               SALARY DOB                        
+---------- ------------------------------ ---------- ---------                  
+         1 Namu                                35000 01-JAN-20                  
+         2 Nima                                80000 03-JUN-02                  
+         3 Yojuu                               60000 02-JUN-22                  
+
+SQL> update emp set salary=100000 where id=1;
+
+1 row updated.
+
+SQL> select * from emp;
+
+        ID NAME                               SALARY DOB                        
+---------- ------------------------------ ---------- ---------                  
+         1 Namu                               100000 01-JAN-20                  
+         2 Nima                                80000 03-JUN-02                  
+         3 Yojuu                               60000 02-JUN-22                  
+
+SQL> commit;
+
+Commit complete.
+
+SQL> delete from emp where id=3;
+
+1 row deleted.
+
+SQL> select * from emp;
+
+        ID NAME                               SALARY DOB                        
+---------- ------------------------------ ---------- ---------                  
+         1 Namu                               100000 01-JAN-20                  
+         2 Nima                                80000 03-JUN-02                  
+
+SQL> -- adding new column
+SQL> alter table empl add address varchar(50);
+alter table empl add address varchar(50)
+*
+ERROR at line 1:
+ORA-00942: table or view does not exist 
+
+
+SQL> alter table emp add address varchar(50);
+
+Table altered.
+
+SQL> desc emp;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(30)
+ SALARY                                             NUMBER(8,2)
+ DOB                                                DATE
+ ADDRESS                                            VARCHAR2(50)
+
+SQL> alter table emp modify address varchar2(25);
+
+Table altered.
+
+SQL> desc emp;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(30)
+ SALARY                                             NUMBER(8,2)
+ DOB                                                DATE
+ ADDRESS                                            VARCHAR2(25)
+
+SQL> alter table emp add address default Kathmandu;
+alter table emp add address default Kathmandu
+                    *
+ERROR at line 1:
+ORA-02263: need to specify the datatype for this column 
+
+
+SQL> alter table emp address default Kathmandu;
+alter table emp address default Kathmandu
+                *
+ERROR at line 1:
+ORA-01735: invalid ALTER TABLE option 
+
+
+SQL> alter table emp modify address default Kathmandu;
+alter table emp modify address default Kathmandu
+                       *
+ERROR at line 1:
+ORA-02262: ORA-904 occurs while type-checking column default value expression 
+
+
+SQL> alter table emp modify address default 'Kathmandu';
+
+Table altered.
+
+SQL> alter table emp ename column salary to sal;
+alter table emp ename column salary to sal
+                *
+ERROR at line 1:
+ORA-00911: invalid character 
+
+
+SQL> alter table emp rename column salary to sal;
+
+Table altered.
+
+SQL> alter table emp rename to employee;
+
+Table altered.
+
+SQL> select tname from tab;
+
+TNAME                                                                           
+--------------------------------------------------------------------------------
+EMPLOYEE                                                                        
+
+SQL> alter table employee add constraints check_sal check(sal>50000);
+
+Table altered.
+
+SQL> desc emp;
+ERROR:
+ORA-04043: object emp does not exist 
+
+
+SQL> desc employee;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(30)
+ SAL                                                NUMBER(8,2)
+ DOB                                                DATE
+ ADDRESS                                            VARCHAR2(25)
+
+SQL> select * from employee;
+
+        ID NAME                                  SAL DOB                        
+---------- ------------------------------ ---------- ---------                  
+ADDRESS                                                                         
+-------------------------                                                       
+         1 Namu                               100000 01-JAN-20                  
+                                                                                
+                                                                                
+         2 Nima                                80000 03-JUN-02                  
+                                                                                
+                                                                                
+
+SQL> create table emp as select * from employee;
+
+Table created.
+
+SQL> select tname from tab;
+
+TNAME                                                                           
+--------------------------------------------------------------------------------
+EMP                                                                             
+EMPLOYEE                                                                        
+
+SQL> select * from emp;
+
+        ID NAME                                  SAL DOB                        
+---------- ------------------------------ ---------- ---------                  
+ADDRESS                                                                         
+-------------------------                                                       
+         1 Namu                               100000 01-JAN-20                  
+                                                                                
+                                                                                
+         2 Nima                                80000 03-JUN-02                  
+                                                                                
+                                                                                
+
+SQL> spool off;

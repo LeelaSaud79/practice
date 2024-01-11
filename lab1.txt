@@ -1,0 +1,93 @@
+SQL> show con_name
+
+CON_NAME                                                                        
+------------------------------                                                  
+CDB$ROOT                                                                        
+SQL> show pdbs;
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED                 
+---------- ------------------------------ ---------- ----------                 
+         2 PDB$SEED                       READ ONLY  NO                         
+         3 XEPDB1                         READ WRITE NO                         
+SQL> describe v$container
+ERROR:
+ORA-04043: object v$container does not exist 
+
+
+SQL> describe v$containers;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CON_ID                                             NUMBER
+ DBID                                               NUMBER
+ CON_UID                                            NUMBER
+ GUID                                               RAW(16)
+ NAME                                               VARCHAR2(128)
+ OPEN_MODE                                          VARCHAR2(10)
+ RESTRICTED                                         VARCHAR2(3)
+ OPEN_TIME                                          TIMESTAMP(3) WITH TIME ZONE
+ CREATE_SCN                                         NUMBER
+ TOTAL_SIZE                                         NUMBER
+ BLOCK_SIZE                                         NUMBER
+ RECOVERY_STATUS                                    VARCHAR2(26)
+ SNAPSHOT_PARENT_CON_ID                             NUMBER
+ APPLICATION_ROOT                                   VARCHAR2(3)
+ APPLICATION_PDB                                    VARCHAR2(3)
+ APPLICATION_SEED                                   VARCHAR2(3)
+ APPLICATION_ROOT_CON_ID                            NUMBER
+ APPLICATION_ROOT_CLONE                             VARCHAR2(3)
+ PROXY_PDB                                          VARCHAR2(3)
+ LOCAL_UNDO                                         NUMBER
+ UNDO_SCN                                           NUMBER
+ UNDO_TIMESTAMP                                     DATE
+ CREATION_TIME                                      DATE
+ PDB_COUNT                                          NUMBER
+ AUDIT_FILES_SIZE                                   NUMBER
+ MAX_SIZE                                           NUMBER
+ MAX_DIAGNOSTICS_SIZE                               NUMBER
+ MAX_AUDIT_SIZE                                     NUMBER
+ LAST_CHANGED_BY                                    VARCHAR2(11)
+ MEMBER_CDB                                         VARCHAR2(3)
+ TENANT_ID                                          VARCHAR2(32767)
+ UPGRADE_LEVEL                                      NUMBER
+ GUID_BASE64                                        VARCHAR2(30)
+ CLOUD_IDENTITY                                     VARCHAR2(4000)
+ CLOSE_TIME                                         TIMESTAMP(3) WITH TIME ZONE
+
+SQL> select con_id, name, open_mode from v$containers;
+
+    CON_ID                                                                      
+----------                                                                      
+NAME                                                                            
+--------------------------------------------------------------------------------
+OPEN_MODE                                                                       
+----------                                                                      
+         1                                                                      
+CDB$ROOT                                                                        
+READ WRITE                                                                      
+                                                                                
+         2                                                                      
+PDB$SEED                                                                        
+READ ONLY                                                                       
+
+    CON_ID                                                                      
+----------                                                                      
+NAME                                                                            
+--------------------------------------------------------------------------------
+OPEN_MODE                                                                       
+----------                                                                      
+                                                                                
+         3                                                                      
+XEPDB1                                                                          
+READ WRITE                                                                      
+                                                                                
+
+SQL> column name format a20;
+SQL> /
+
+    CON_ID NAME                 OPEN_MODE                                       
+---------- -------------------- ----------                                      
+         1 CDB$ROOT             READ WRITE                                      
+         2 PDB$SEED             READ ONLY                                       
+         3 XEPDB1               READ WRITE                                      
+
+SQL> spool off;

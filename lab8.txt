@@ -1,0 +1,379 @@
+SQL> show pdbs;
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED                 
+---------- ------------------------------ ---------- ----------                 
+         2 PDB$SEED                       READ ONLY  NO                         
+         3 XEPDB1                         READ WRITE NO                         
+SQL> column name format a30;
+SQL> select con_id, name from v$containers;
+
+    CON_ID NAME                                                                 
+---------- ------------------------------                                       
+         1 CDB$ROOT                                                             
+         2 PDB$SEED                                                             
+         3 XEPDB1                                                               
+
+SQL> show con_name;
+
+CON_NAME                                                                        
+------------------------------                                                  
+CDB$ROOT                                                                        
+SQL> alter session set container=xepdb1;
+
+Session altered.
+
+SQL> show con_name;
+
+CON_NAME                                                                        
+------------------------------                                                  
+XEPDB1                                                                          
+SQL> create user leela identified by 123 default tablespace users quota unlimited on users;
+
+User created.
+
+SQL> show user;
+USER is "SYS"
+SQL> create user namrata identified by 123 default tablespace users quota unlimited on users;
+
+User created.
+
+SQL> show user;
+USER is "SYS"
+SQL> create user barsha identified by 123 default tablespace users quota unlimited on users;
+
+User created.
+
+SQL> grant create session to leela;
+
+Grant succeeded.
+
+SQL> conn leela/123@localhost:1521/xepdb1;
+Connected.
+SQL> show user;
+USER is "LEELA"
+SQL> show con_name;
+
+CON_NAME                                                                        
+------------------------------                                                  
+XEPDB1                                                                          
+SQL> conn namrata/123@localhost:1521/xepdb1;
+ERROR:
+ORA-01045: user NAMRATA lacks CREATE SESSION privilege; logon denied 
+
+
+Warning: You are no longer connected to ORACLE.
+SQL> show user;
+USER is ""
+SQL> conn sys as sysdba;
+Connected.
+SQL> show con_name;
+
+CON_NAME                                                                        
+------------------------------                                                  
+CDB$ROOT                                                                        
+SQL> alter session set container=xepdb1;
+
+Session altered.
+
+SQL> grant create session to barsha with admin option;
+
+Grant succeeded.
+
+SQL> conn leela/123@localhost:1521/xepdb1;
+Connected.
+SQL> grant create session to namrata;
+grant create session to namrata
+*
+ERROR at line 1:
+ORA-01031: insufficient privileges 
+
+
+SQL> show con_name;
+
+CON_NAME                                                                        
+------------------------------                                                  
+XEPDB1                                                                          
+SQL> conn namrata/123@localhost:1521/xepdb1;
+ERROR:
+ORA-01045: user NAMRATA lacks CREATE SESSION privilege; logon denied 
+
+
+Warning: You are no longer connected to ORACLE.
+SQL> grant create session to namrata with admin option;
+SP2-0640: Not connected
+SQL> alter session set container=xepdb1;
+SP2-0640: Not connected
+SQL> conn sys as sysdba;
+Connected.
+SQL> alter session set container=xepdb1;
+
+Session altered.
+
+SQL> conn barsha/123@localhost:1521/xepdb1;
+Connected.
+SQL> grant create session to namrata;
+
+Grant succeeded.
+
+SQL> conn sys as sysdba;
+Connected.
+SQL> show con_name;
+
+CON_NAME                                                                        
+------------------------------                                                  
+CDB$ROOT                                                                        
+SQL> revoke create session from leela;
+revoke create session from leela
+                           *
+ERROR at line 1:
+ORA-01917: user or role 'LEELA' does not exist 
+
+
+SQL> revoke create session from barsha;
+revoke create session from barsha
+                           *
+ERROR at line 1:
+ORA-01917: user or role 'BARSHA' does not exist 
+
+
+SQL> conn barsha/123@localhost:1521/xepdb1;
+Connected.
+SQL> conn leela/123@localhost:1521/xepdb1;
+Connected.
+SQL> conn sys as sysdba;
+Connected.
+SQL> alter session set container=xepdb1;
+
+Session altered.
+
+SQL> grant create user to barsha;
+
+Grant succeeded.
+
+SQL> conn barsha/123@localhost:1521/xepdb1;
+Connected.
+SQL> create user ram identified by 123;
+
+User created.
+
+SQL> show user;
+USER is "BARSHA"
+SQL> conn sys as sysdba;
+Connected.
+SQL> alter session set container=xepdb1;
+
+Session altered.
+
+SQL> grant create table to barsha;
+
+Grant succeeded.
+
+SQL> conn barsha/123@localhost:1521/xepdb1;
+Connected.
+SQL> create table student(id int, name varchar(30));
+
+Table created.
+
+SQL> alter table student add constraint stu_id primary key(id);
+
+Table altered.
+
+SQL> insert into student values(&id, '&name');
+Enter value for id: 1
+Enter value for name: Leela
+old   1: insert into student values(&id, '&name')
+new   1: insert into student values(1, 'Leela')
+
+1 row created.
+
+SQL> insert into student values(&id, '&name');
+Enter value for id: 2
+Enter value for name: Namrata
+old   1: insert into student values(&id, '&name')
+new   1: insert into student values(2, 'Namrata')
+
+1 row created.
+
+SQL> insert into student values(&id, '&name');
+Enter value for id: 3
+Enter value for name: Yojana
+old   1: insert into student values(&id, '&name')
+new   1: insert into student values(3, 'Yojana')
+
+1 row created.
+
+SQL> insert into student values(&id, '&name');
+Enter value for id: 4
+Enter value for name: Nima
+old   1: insert into student values(&id, '&name')
+new   1: insert into student values(4, 'Nima')
+
+1 row created.
+
+SQL> grant select on emp to leela with grant option;
+grant select on emp to leela with grant option
+                *
+ERROR at line 1:
+ORA-00942: table or view does not exist 
+
+
+SQL> grant select on student to leela with grant option;
+
+Grant succeeded.
+
+SQL> conn sys as sysdba;
+Connected.
+SQL> alter session set container= xepdb1;
+
+Session altered.
+
+SQL> grant create session to leela;
+
+Grant succeeded.
+
+SQL> conn barsha/123@localhost:1521/xepdb1;
+Connected.
+SQL> conn barsha/123@localhost:1521/xepdb1;
+Connected.
+SQL> select * from barsha.student;
+
+        ID NAME                                                                 
+---------- ------------------------------                                       
+         1 Leela                                                                
+         2 Namrata                                                              
+         3 Yojana                                                               
+         4 Nima                                                                 
+
+SQL> show user;
+USER is "BARSHA"
+SQL> grant select on leela.student to namrata;
+grant select on leela.student to namrata
+                      *
+ERROR at line 1:
+ORA-00942: table or view does not exist 
+
+
+SQL> grant select on barsha.student to namrata;
+
+Grant succeeded.
+
+SQL> conn namrata/123@localhost:1521/xepdb1;
+Connected.
+SQL> select * from barsha.student;
+
+        ID NAME                                                                 
+---------- ------------------------------                                       
+         1 Leela                                                                
+         2 Namrata                                                              
+         3 Yojana                                                               
+         4 Nima                                                                 
+
+SQL> desc user_sys_privs;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ USERNAME                                           VARCHAR2(128)
+ PRIVILEGE                                          VARCHAR2(40)
+ ADMIN_OPTION                                       VARCHAR2(3)
+ COMMON                                             VARCHAR2(3)
+ INHERITED                                          VARCHAR2(3)
+
+SQL> column username format a20;
+SQL> select username, privilege,admin_option from user_sys_privs;
+
+USERNAME             PRIVILEGE                                ADM               
+-------------------- ---------------------------------------- ---               
+NAMRATA              CREATE SESSION                           NO                
+
+SQL> desc user_tabs_privs;
+ERROR:
+ORA-04043: object user_tabs_privs does not exist 
+
+
+SQL> desc user_tab_privs;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ GRANTEE                                            VARCHAR2(128)
+ OWNER                                              VARCHAR2(128)
+ TABLE_NAME                                         VARCHAR2(128)
+ GRANTOR                                            VARCHAR2(128)
+ PRIVILEGE                                          VARCHAR2(40)
+ GRANTABLE                                          VARCHAR2(3)
+ HIERARCHY                                          VARCHAR2(3)
+ COMMON                                             VARCHAR2(3)
+ TYPE                                               VARCHAR2(24)
+ INHERITED                                          VARCHAR2(3)
+
+SQL> column grantee format a10;
+SQL> column owner format a10;
+SQL> column table_name format a10;
+SQL> select grantee, owner, table_name, grantor, privilege, grantable from user_tab_privs;
+
+GRANTEE    OWNER      TABLE_NAME                                                
+---------- ---------- ----------                                                
+GRANTOR                                                                         
+--------------------------------------------------------------------------------
+PRIVILEGE                                GRA                                    
+---------------------------------------- ---                                    
+NAMRATA    BARSHA     STUDENT                                                   
+BARSHA                                                                          
+SELECT                                   NO                                     
+                                                                                
+PUBLIC     SYS        NAMRATA                                                   
+NAMRATA                                                                         
+INHERIT PRIVILEGES                       NO                                     
+
+GRANTEE    OWNER      TABLE_NAME                                                
+---------- ---------- ----------                                                
+GRANTOR                                                                         
+--------------------------------------------------------------------------------
+PRIVILEGE                                GRA                                    
+---------------------------------------- ---                                    
+                                                                                
+
+SQL> conn barsha/123@localhost:1521/xepdb1;
+Connected.
+SQL> select grantee, owner, table_name, grantor, privilege, grantable from user_tab_privs;
+
+GRANTEE    OWNER      TABLE_NAME                                                
+---------- ---------- ----------                                                
+GRANTOR                                                                         
+--------------------------------------------------------------------------------
+PRIVILEGE                                GRA                                    
+---------------------------------------- ---                                    
+LEELA      BARSHA     STUDENT                                                   
+BARSHA                                                                          
+SELECT                                   YES                                    
+                                                                                
+NAMRATA    BARSHA     STUDENT                                                   
+BARSHA                                                                          
+SELECT                                   NO                                     
+
+GRANTEE    OWNER      TABLE_NAME                                                
+---------- ---------- ----------                                                
+GRANTOR                                                                         
+--------------------------------------------------------------------------------
+PRIVILEGE                                GRA                                    
+---------------------------------------- ---                                    
+                                                                                
+PUBLIC     SYS        BARSHA                                                    
+BARSHA                                                                          
+INHERIT PRIVILEGES                       NO                                     
+                                                                                
+
+SQL> conn namrata/123@localhost:1521/xepdb1;
+Connected.
+SQL> revoke select on student from leela;
+revoke select on student from leela
+                 *
+ERROR at line 1:
+ORA-00942: table or view does not exist 
+
+
+SQL> revoke select on student from barsha;
+revoke select on student from barsha
+                 *
+ERROR at line 1:
+ORA-00942: table or view does not exist 
+
+
+SQL> spool off;

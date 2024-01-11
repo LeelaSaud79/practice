@@ -1,0 +1,461 @@
+SQL> desc v$parameter;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ NUM                                                NUMBER
+ NAME                                               VARCHAR2(80)
+ TYPE                                               NUMBER
+ VALUE                                              VARCHAR2(4000)
+ DISPLAY_VALUE                                      VARCHAR2(4000)
+ DEFAULT_VALUE                                      VARCHAR2(255)
+ ISDEFAULT                                          VARCHAR2(9)
+ ISSES_MODIFIABLE                                   VARCHAR2(5)
+ ISSYS_MODIFIABLE                                   VARCHAR2(9)
+ ISPDB_MODIFIABLE                                   VARCHAR2(5)
+ ISINSTANCE_MODIFIABLE                              VARCHAR2(5)
+ ISMODIFIED                                         VARCHAR2(10)
+ ISADJUSTED                                         VARCHAR2(5)
+ ISDEPRECATED                                       VARCHAR2(5)
+ ISBASIC                                            VARCHAR2(5)
+ DESCRIPTION                                        VARCHAR2(255)
+ UPDATE_COMMENT                                     VARCHAR2(255)
+ HASH                                               NUMBER
+ CON_ID                                             NUMBER
+
+SQL> column name format a20;
+SQL> select con_id, name, open_mode from v$containers;
+
+    CON_ID NAME                 OPEN_MODE                                       
+---------- -------------------- ----------                                      
+         1 CDB$ROOT             READ WRITE                                      
+         2 PDB$SEED             READ ONLY                                       
+         3 XEPDB1               READ WRITE                                      
+
+SQL> show parameter spfile;
+
+NAME                                 TYPE        VALUE                          
+------------------------------------ ----------- ------------------------------ 
+spfile                               string      C:\APP\DELL\PRODUCT\21C\DATABA 
+                                                 SE\SPFILEXE.ORA                
+SQL> column name format a80;
+SQL> /
+
+    CON_ID                                                                      
+----------                                                                      
+NAME                                                                            
+--------------------------------------------------------------------------------
+OPEN_MODE                                                                       
+----------                                                                      
+         1                                                                      
+CDB$ROOT                                                                        
+READ WRITE                                                                      
+                                                                                
+         2                                                                      
+PDB$SEED                                                                        
+READ ONLY                                                                       
+
+    CON_ID                                                                      
+----------                                                                      
+NAME                                                                            
+--------------------------------------------------------------------------------
+OPEN_MODE                                                                       
+----------                                                                      
+                                                                                
+         3                                                                      
+XEPDB1                                                                          
+READ WRITE                                                                      
+                                                                                
+
+SQL> create pfile from spfile;
+
+File created.
+
+SQL> show parameter control;
+
+NAME                                 TYPE        VALUE                          
+------------------------------------ ----------- ------------------------------ 
+control_file_record_keep_time        integer     7                              
+control_files                        string      C:\APP\DELL\PRODUCT\21C\ORADAT 
+                                                 A\XE\CONTROL01.CTL, C:\APP\DEL 
+                                                 L\PRODUCT\21C\ORADATA\XE\CONTR 
+                                                 OL02.CTL                       
+control_management_pack_access       string      NONE                           
+diagnostics_control                  string      IGNORE                         
+SQL> select name from v$controlfile
+  2  ;
+
+NAME                                                                            
+--------------------------------------------------------------------------------
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\CONTROL01.CTL                                
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\CONTROL02.CTL                                
+
+SQL> dec v$log;
+SP2-0042: unknown command "dec v$log" - rest of line ignored.
+SQL> desc v$log;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ GROUP#                                             NUMBER
+ THREAD#                                            NUMBER
+ SEQUENCE#                                          NUMBER
+ BYTES                                              NUMBER
+ BLOCKSIZE                                          NUMBER
+ MEMBERS                                            NUMBER
+ ARCHIVED                                           VARCHAR2(3)
+ STATUS                                             VARCHAR2(16)
+ FIRST_CHANGE#                                      NUMBER
+ FIRST_TIME                                         DATE
+ NEXT_CHANGE#                                       NUMBER
+ NEXT_TIME                                          DATE
+ CON_ID                                             NUMBER
+
+SQL> select group#, sequence#, members, status, bytes/1024/1024 bytesinMB from v$log;
+
+    GROUP#  SEQUENCE#    MEMBERS STATUS            BYTESINMB                    
+---------- ---------- ---------- ---------------- ----------                    
+         1          1          1 INACTIVE                200                    
+         2          2          1 INACTIVE                200                    
+         3          3          1 CURRENT                 200                    
+
+SQL> alter system switch logfile;
+
+System altered.
+
+SQL> select group#, sequence#, members, status, bytes/1024/1024 bytesinMB from v$log;
+
+    GROUP#  SEQUENCE#    MEMBERS STATUS            BYTESINMB                    
+---------- ---------- ---------- ---------------- ----------                    
+         1          4          1 CURRENT                 200                    
+         2          2          1 INACTIVE                200                    
+         3          3          1 ACTIVE                  200                    
+
+SQL> desc v$logfile;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ GROUP#                                             NUMBER
+ STATUS                                             VARCHAR2(7)
+ TYPE                                               VARCHAR2(7)
+ MEMBER                                             VARCHAR2(513)
+ IS_RECOVERY_DEST_FILE                              VARCHAR2(3)
+ CON_ID                                             NUMBER
+
+SQL> column member format a70;
+SQL> select group#, sequence#, members, status, bytes/1024/1024 bytesinMB from v$log;
+
+    GROUP#  SEQUENCE#    MEMBERS STATUS            BYTESINMB                    
+---------- ---------- ---------- ---------------- ----------                    
+         1          4          1 CURRENT                 200                    
+         2          2          1 INACTIVE                200                    
+         3          3          1 ACTIVE                  200                    
+
+SQL> set linesize 120;
+SQL> /
+
+    GROUP#  SEQUENCE#    MEMBERS STATUS            BYTESINMB                                                            
+---------- ---------- ---------- ---------------- ----------                                                            
+         1          4          1 CURRENT                 200                                                            
+         2          2          1 INACTIVE                200                                                            
+         3          3          1 ACTIVE                  200                                                            
+
+SQL> select group#, members from v$logfile;
+select group#, members from v$logfile
+               *
+ERROR at line 1:
+ORA-00904: "MEMBERS": invalid identifier 
+
+
+SQL> select group#, member from v$logfile;
+
+    GROUP# MEMBER                                                                                                       
+---------- ----------------------------------------------------------------------                                       
+         3 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO03.LOG                                                                
+         2 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO02.LOG                                                                
+         1 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO01.LOG                                                                
+
+SQL> set linesize 120;
+SQL> select group#, members from v$logfile;
+select group#, members from v$logfile
+               *
+ERROR at line 1:
+ORA-00904: "MEMBERS": invalid identifier 
+
+
+SQL> select group#, member from v$logfile;
+
+    GROUP# MEMBER                                                                                                       
+---------- ----------------------------------------------------------------------                                       
+         3 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO03.LOG                                                                
+         2 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO02.LOG                                                                
+         1 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO01.LOG                                                                
+
+SQL> set linesize 180;
+SQL> select group#, member from v$logfile;
+
+    GROUP# MEMBER                                                                                                                                                                   
+---------- ----------------------------------------------------------------------                                                                                                   
+         3 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO03.LOG                                                                                                                            
+         2 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO02.LOG                                                                                                                            
+         1 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\REDO01.LOG                                                                                                                            
+
+SQL> desc v$tablespace;
+ Name                                                                                                  Null?    Type
+ ----------------------------------------------------------------------------------------------------- -------- --------------------------------------------------------------------
+ TS#                                                                                                            NUMBER
+ NAME                                                                                                           VARCHAR2(30)
+ INCLUDED_IN_DATABASE_BACKUP                                                                                    VARCHAR2(3)
+ BIGFILE                                                                                                        VARCHAR2(3)
+ FLASHBACK_ON                                                                                                   VARCHAR2(3)
+ ENCRYPT_IN_BACKUP                                                                                              VARCHAR2(3)
+ CON_ID                                                                                                         NUMBER
+
+SQL> select ts#, name, con_id from v$tablespace;
+
+       TS# NAME                                                                                 CON_ID                                                                              
+---------- -------------------------------------------------------------------------------- ----------                                                                              
+         1 SYSAUX                                                                                    1                                                                              
+         0 SYSTEM                                                                                    1                                                                              
+         2 UNDOTBS1                                                                                  1                                                                              
+         4 USERS                                                                                     1                                                                              
+         3 TEMP                                                                                      1                                                                              
+         0 SYSTEM                                                                                    2                                                                              
+         1 SYSAUX                                                                                    2                                                                              
+         2 UNDOTBS1                                                                                  2                                                                              
+         3 TEMP                                                                                      2                                                                              
+         0 SYSTEM                                                                                    3                                                                              
+         1 SYSAUX                                                                                    3                                                                              
+
+       TS# NAME                                                                                 CON_ID                                                                              
+---------- -------------------------------------------------------------------------------- ----------                                                                              
+         2 UNDOTBS1                                                                                  3                                                                              
+         3 TEMP                                                                                      3                                                                              
+         5 USERS                                                                                     3                                                                              
+
+14 rows selected.
+
+SQL> set pagesize 30;
+SQL> select ts#, name, con_id from v$tablespace;
+
+       TS# NAME                                                                                 CON_ID                                                                              
+---------- -------------------------------------------------------------------------------- ----------                                                                              
+         1 SYSAUX                                                                                    1                                                                              
+         0 SYSTEM                                                                                    1                                                                              
+         2 UNDOTBS1                                                                                  1                                                                              
+         4 USERS                                                                                     1                                                                              
+         3 TEMP                                                                                      1                                                                              
+         0 SYSTEM                                                                                    2                                                                              
+         1 SYSAUX                                                                                    2                                                                              
+         2 UNDOTBS1                                                                                  2                                                                              
+         3 TEMP                                                                                      2                                                                              
+         0 SYSTEM                                                                                    3                                                                              
+         1 SYSAUX                                                                                    3                                                                              
+         2 UNDOTBS1                                                                                  3                                                                              
+         3 TEMP                                                                                      3                                                                              
+         5 USERS                                                                                     3                                                                              
+
+14 rows selected.
+
+SQL> select ts#, name, con_id from v$tablespace where con_id =1;
+
+       TS# NAME                                                                                 CON_ID                                                                              
+---------- -------------------------------------------------------------------------------- ----------                                                                              
+         1 SYSAUX                                                                                    1                                                                              
+         0 SYSTEM                                                                                    1                                                                              
+         2 UNDOTBS1                                                                                  1                                                                              
+         4 USERS                                                                                     1                                                                              
+         3 TEMP                                                                                      1                                                                              
+
+SQL> desc v$datafile;
+ Name                                                                                                  Null?    Type
+ ----------------------------------------------------------------------------------------------------- -------- --------------------------------------------------------------------
+ FILE#                                                                                                          NUMBER
+ CREATION_CHANGE#                                                                                               NUMBER
+ CREATION_TIME                                                                                                  DATE
+ TS#                                                                                                            NUMBER
+ RFILE#                                                                                                         NUMBER
+ STATUS                                                                                                         VARCHAR2(7)
+ ENABLED                                                                                                        VARCHAR2(10)
+ CHECKPOINT_CHANGE#                                                                                             NUMBER
+ CHECKPOINT_TIME                                                                                                DATE
+ UNRECOVERABLE_CHANGE#                                                                                          NUMBER
+ UNRECOVERABLE_TIME                                                                                             DATE
+ LAST_CHANGE#                                                                                                   NUMBER
+ LAST_TIME                                                                                                      DATE
+ OFFLINE_CHANGE#                                                                                                NUMBER
+ ONLINE_CHANGE#                                                                                                 NUMBER
+ ONLINE_TIME                                                                                                    DATE
+ BYTES                                                                                                          NUMBER
+ BLOCKS                                                                                                         NUMBER
+ CREATE_BYTES                                                                                                   NUMBER
+ BLOCK_SIZE                                                                                                     NUMBER
+ NAME                                                                                                           VARCHAR2(513)
+ PLUGGED_IN                                                                                                     NUMBER
+ BLOCK1_OFFSET                                                                                                  NUMBER
+ AUX_NAME                                                                                                       VARCHAR2(513)
+ FIRST_NONLOGGED_SCN                                                                                            NUMBER
+ FIRST_NONLOGGED_TIME                                                                                           DATE
+ FOREIGN_DBID                                                                                                   NUMBER
+ FOREIGN_CREATION_CHANGE#                                                                                       NUMBER
+ FOREIGN_CREATION_TIME                                                                                          DATE
+ PLUGGED_READONLY                                                                                               VARCHAR2(3)
+ PLUGIN_CHANGE#                                                                                                 NUMBER
+ PLUGIN_RESETLOGS_CHANGE#                                                                                       NUMBER
+ PLUGIN_RESETLOGS_TIME                                                                                          DATE
+ CON_ID                                                                                                         NUMBER
+
+SQL> select ts#, name, con_id from v$datafile where con_id=1;
+
+       TS# NAME                                                                                 CON_ID                                                                              
+---------- -------------------------------------------------------------------------------- ----------                                                                              
+         0 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSTEM01.DBF                                           1                                                                              
+         1 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSAUX01.DBF                                           1                                                                              
+         2 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\UNDOTBS01.DBF                                          1                                                                              
+         4 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\USERS01.DBF                                            1                                                                              
+
+SQL> select ts#, name, con_id from v$tempfile where con_id=1;
+
+       TS# NAME                                                                                 CON_ID                                                                              
+---------- -------------------------------------------------------------------------------- ----------                                                                              
+         3 C:\APP\DELL\PRODUCT\21C\ORADATA\XE\TEMP01.DBF                                             1                                                                              
+
+SQL> select t.ts#, t.name tablespace, d.name datafile from v#tablespace t, v#datafile d where t.ts# = d.ts# and t.con_id = d.con_id and t.con_id = 1;
+select t.ts#, t.name tablespace, d.name datafile from v#tablespace t, v#datafile d where t.ts# = d.ts# and t.con_id = d.con_id and t.con_id = 1
+                                                                      *
+ERROR at line 1:
+ORA-00942: table or view does not exist 
+
+
+SQL> select t.ts#, t.name tablespace, d.name datafile from v$tablespace t, v$datafile d where t.ts# = d.ts# and t.con_id = d.con_id and t.con_id = 1;
+
+       TS# TABLESPACE                                                                                                                                                               
+---------- ------------------------------                                                                                                                                           
+DATAFILE                                                                                                                                                                            
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+         1 SYSAUX                                                                                                                                                                   
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSAUX01.DBF                                                                                                                                     
+                                                                                                                                                                                    
+         0 SYSTEM                                                                                                                                                                   
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSTEM01.DBF                                                                                                                                     
+                                                                                                                                                                                    
+         2 UNDOTBS1                                                                                                                                                                 
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\UNDOTBS01.DBF                                                                                                                                    
+                                                                                                                                                                                    
+         4 USERS                                                                                                                                                                    
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\USERS01.DBF                                                                                                                                      
+                                                                                                                                                                                    
+
+SQL> ed
+Wrote file afiedt.buf
+
+  1* select t.ts#, t.name tablespace, d.name datafile from v$tablespace t, v$datafile d where t.ts# = d.ts# and t.con_id = d.con_id and t.con_id = 1
+SQL> 
+SQL> /
+
+       TS# TABLESPACE                                                                                                                                                               
+---------- ------------------------------                                                                                                                                           
+DATAFILE                                                                                                                                                                            
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+         1 SYSAUX                                                                                                                                                                   
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSAUX01.DBF                                                                                                                                     
+                                                                                                                                                                                    
+         0 SYSTEM                                                                                                                                                                   
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSTEM01.DBF                                                                                                                                     
+                                                                                                                                                                                    
+         2 UNDOTBS1                                                                                                                                                                 
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\UNDOTBS01.DBF                                                                                                                                    
+                                                                                                                                                                                    
+         4 USERS                                                                                                                                                                    
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\USERS01.DBF                                                                                                                                      
+                                                                                                                                                                                    
+
+SQL> set linesize 80;
+SQL> /
+
+       TS# TABLESPACE                                                           
+---------- ------------------------------                                       
+DATAFILE                                                                        
+--------------------------------------------------------------------------------
+         1 SYSAUX                                                               
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSAUX01.DBF                                 
+                                                                                
+         0 SYSTEM                                                               
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSTEM01.DBF                                 
+                                                                                
+         2 UNDOTBS1                                                             
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\UNDOTBS01.DBF                                
+                                                                                
+         4 USERS                                                                
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\USERS01.DBF                                  
+                                                                                
+
+SQL> set linesize a80;
+SP2-0268: linesize option not a valid number
+SQL> /
+
+       TS# TABLESPACE                                                           
+---------- ------------------------------                                       
+DATAFILE                                                                        
+--------------------------------------------------------------------------------
+         1 SYSAUX                                                               
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSAUX01.DBF                                 
+                                                                                
+         0 SYSTEM                                                               
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\SYSTEM01.DBF                                 
+                                                                                
+         2 UNDOTBS1                                                             
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\UNDOTBS01.DBF                                
+                                                                                
+         4 USERS                                                                
+C:\APP\DELL\PRODUCT\21C\ORADATA\XE\USERS01.DBF                                  
+                                                                                
+
+SQL> shutdown immediate;
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup;
+ORACLE instance started.
+
+Total System Global Area 1610610072 bytes                                       
+Fixed Size                  9856408 bytes                                       
+Variable Size             587202560 bytes                                       
+Database Buffers         1006632960 bytes                                       
+Redo Buffers                6918144 bytes                                       
+Database mounted.
+Database opened.
+SQL> shutdown immediate;
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup nomount;
+ORACLE instance started.
+
+Total System Global Area 1610610072 bytes                                       
+Fixed Size                  9856408 bytes                                       
+Variable Size             587202560 bytes                                       
+Database Buffers         1006632960 bytes                                       
+Redo Buffers                6918144 bytes                                       
+SQL> select status from v$instance;
+
+STATUS                                                                          
+------------                                                                    
+STARTED                                                                         
+
+SQL> alter database mount;
+
+Database altered.
+
+SQL> select status from v$instance;
+
+STATUS                                                                          
+------------                                                                    
+MOUNTED                                                                         
+
+SQL> alter database open;
+
+Database altered.
+
+SQL> select status from v$instance;
+
+STATUS                                                                          
+------------                                                                    
+OPEN                                                                            
+
+SQL> spool off;
